@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cumpleaños</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    background:black;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+canvas{
+    display:block;
+}
+
+.title{
+
+    position:absolute;
+
+    top:25px;
+
+    width:100%;
+
+    text-align:center;
+
+    z-index:100;
+
+    pointer-events:none;
+}
+
+.title h1{
+
+    color:#ff7edb;
+
+    font-size:70px;
+
+    letter-spacing:10px;
+
+    text-shadow:
+    0 0 10px #ffffff,
+    0 0 40px #ffb6e6,
+    0 0 120px #ff69b4;
+}
+
+.title p{
+
+    margin-top:10px;
+
+    color:white;
+
+    font-size:20px;
+
+    letter-spacing:4px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="title">
+
+    <p>Feliz cumpleaños a la niña más hermosa de mi universo</p>
+
+</div>
+
+<script type="module">
+
+import * as THREE
+from 'https://cdn.jsdelivr.net/npm/three@0.165/build/three.module.js';
+
+/* ESCENA */
+
+const scene =
+new THREE.Scene();
+
+scene.fog =
+new THREE.FogExp2(
+    0x050010,
+    0.00045
+);
+
+/* CAMARA */
+
+const camera =
+new THREE.PerspectiveCamera(
+
+    75,
+
+    window.innerWidth /
+    window.innerHeight,
+
+    0.1,
+
+    20000
+);
+
+camera.position.z = 900;
+camera.position.y = 180;
+
+/* RENDER */
+
+const renderer =
+new THREE.WebGLRenderer({
+
+    antialias:true
+
+});
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+renderer.setPixelRatio(
+    window.devicePixelRatio
+);
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+/* LUCES */
+
+const ambientLight =
+new THREE.AmbientLight(
+    0xffffff,
+    1.5
+);
+
+scene.add(ambientLight);
+
+const pinkLight =
+new THREE.PointLight(
+    0xff1493,
+    8,
+    6000
+);
+
+scene.add(pinkLight);
+
+/* AGUJERO NEGRO */
+
+const blackHoleGeometry =
+new THREE.SphereGeometry(
+    80,
+    64,
+    64
+);
+
+const blackHoleMaterial =
+new THREE.MeshBasicMaterial({
+
+    color:0x000000
+
+});
+
+const blackHole =
+new THREE.Mesh(
+    blackHoleGeometry,
+    blackHoleMaterial
+);
+
+scene.add(blackHole);
+
+/* ARO BRILLANTE */
+
+const ringGeometry =
+new THREE.TorusGeometry(
+    130,
+    30,
+    32,
+    100
+);
+
+const ringMaterial =
+new THREE.MeshStandardMaterial({
+
+    color:0xffcc66,
+
+    emissive:0xff8800,
+
+    emissiveIntensity:3
+
+});
+
+const ring =
+new THREE.Mesh(
+    ringGeometry,
+    ringMaterial
+);
+
+ring.rotation.x =
+Math.PI / 2;
+
+scene.add(ring);
+
+/* GALAXIA ESPIRAL */
+
+const galaxyGeometry =
+new THREE.BufferGeometry();
+
+const galaxyVertices = [];
+const galaxyColors = [];
+
+for(let i=0; i<90000; i++){
+
+    const radius =
+    Math.random() * 2500;
+
+    const angle =
+    radius * 0.03;
+
+    const randomX =
+    (Math.random()-0.5) * 80;
+
+    const randomY =
+    (Math.random()-0.5) * 20;
+
+    const randomZ =
+    (Math.random()-0.5) * 80;
+
+    const x =
+    Math.cos(angle) * radius +
+    randomX;
+
+    const y =
+    randomY;
+
+    const z =
+    Math.sin(angle) * radius +
+    randomZ;
+
+    galaxyVertices.push(x,y,z);
+
+    galaxyColors.push(
+        1,
+        Math.random()*0.4,
+        0.8
+    );
+}
+
+galaxyGeometry.setAttribute(
+
+    'position',
+
+    new THREE.Float32BufferAttribute(
+        galaxyVertices,
+        3
+    )
+);
+
+galaxyGeometry.setAttribute(
+
+    'color',
+
+    new THREE.Float32BufferAttribute(
+        galaxyColors,
+        3
+    )
+);
+
+const galaxyMaterial =
+new THREE.PointsMaterial({
+
+    size:3,
+
+    vertexColors:true,
+
+    transparent:true
+
+});
+
+const galaxy =
+new THREE.Points(
+    galaxyGeometry,
+    galaxyMaterial
+);
+
+scene.add(galaxy);
+
+/* ESTRELLAS DEL FONDO */
+
+const starsGeometry =
+new THREE.BufferGeometry();
+
+const starsVertices = [];
+
+for(let i=0; i<35000; i++){
+
+    const x =
+    (Math.random()-0.5) * 20000;
+
+    const y =
+    (Math.random()-0.5) * 20000;
+
+    const z =
+    (Math.random()-0.5) * 20000;
+
+    starsVertices.push(x,y,z);
+}
+
+starsGeometry.setAttribute(
+
+    'position',
+
+    new THREE.Float32BufferAttribute(
+        starsVertices,
+        3
+    )
+);
+
+const starsMaterial =
+new THREE.PointsMaterial({
+
+    color:0xffffff,
+
+    size:2
+
+});
+
+const stars =
+new THREE.Points(
+    starsGeometry,
+    starsMaterial
+);
+
+scene.add(stars);
+
+/* ESFERAS FLOTANTES */
+
+const floatingSpheres = [];
+
+function createSphere(){
+
+    const colors = [
+
+        0xff69b4,
+        0xff1493,
+        0xffffff,
+        0x9d4dff,
+        0xffcc00,
+
+    ];
+
+    const size =
+    Math.random() * 40 + 10;
+
+    const geometry =
+    new THREE.SphereGeometry(
+        size,
+        32,
+        32
+    );
+
+    const color =
+    colors[
+        Math.floor(
+            Math.random() *
+            colors.length
+        )
+    ];
+
+    const material =
+    new THREE.MeshStandardMaterial({
+
+        color:color,
+
+        emissive:color,
+
+        emissiveIntensity:2
+
+    });
+
+    const sphere =
+    new THREE.Mesh(
+        geometry,
+        material
+    );
+
+    sphere.position.set(
+
+        (Math.random()-0.5) * 7000,
+
+        (Math.random()-0.5) * 2000,
+
+        (Math.random()-0.5) * 7000
+    );
+
+    /* GLOW */
+
+    const glowGeometry =
+    new THREE.SphereGeometry(
+        size * 1.8,
+        32,
+        32
+    );
+
+    const glowMaterial =
+    new THREE.MeshBasicMaterial({
+
+        color:color,
+
+        transparent:true,
+
+        opacity:0.08
+
+    });
+
+    const glow =
+    new THREE.Mesh(
+        glowGeometry,
+        glowMaterial
+    );
+
+    sphere.add(glow);
+
+    scene.add(sphere);
+
+    return sphere;
+}
+
+/* MUCHAS ESFERAS */
+
+for(let i=0; i<600; i++){
+
+    floatingSpheres.push(
+        createSphere()
+    );
+}
+/* ========================= */
+/* ESFERAS CON FOTOS */
+/* ========================= */
+
+const textureLoader =
+new THREE.TextureLoader();
+
+const photoTextures = [
+
+    textureLoader.load('foto1.jpeg'),
+
+    textureLoader.load('foto2.jpeg'),
+
+    textureLoader.load('foto3.jpeg')
+
+];
+
+const photoSpheres = [];
+
+function createPhotoSphere(texture,x,y,z){
+
+    const geometry =
+    new THREE.CircleGeometry(
+        120,
+        64
+    );
+
+    const material =
+    new THREE.MeshStandardMaterial({
+
+        map:texture,
+
+        emissive:0xff69b4,
+
+        emissiveIntensity:0
+
+    });
+
+    const sphere =
+    new THREE.Mesh(
+        geometry,
+        material
+    );
+
+    sphere.position.set(x,y,z);
+
+    scene.add(sphere);
+
+    return sphere;
+}
+
+/* CREAR 3 ESFERAS */
+
+photoSpheres.push(
+
+    createPhotoSphere(
+        photoTextures[0],
+        -500,
+        200,
+        300
+    )
+);
+
+photoSpheres.push(
+
+    createPhotoSphere(
+        photoTextures[1],
+        0,
+        -100,
+        200
+    )
+);
+
+photoSpheres.push(
+
+    createPhotoSphere(
+        photoTextures[2],
+        500,
+        150,
+        300
+    )
+);
+
+/* CORAZON DE PARTICULAS */
+
+const heartGeometry =
+new THREE.BufferGeometry();
+
+const heartVertices = [];
+
+for(let i=0; i<15000; i++){
+
+    const t =
+    Math.random() * Math.PI * 2;
+
+    const x =
+    16 * Math.pow(Math.sin(t),3);
+
+    const y =
+    13 * Math.cos(t)
+    - 5 * Math.cos(2*t)
+    - 2 * Math.cos(3*t)
+    - Math.cos(4*t);
+
+    const scale = 18;
+
+    heartVertices.push(
+
+        x * scale +
+        (Math.random()-0.5)*20,
+
+        y * scale + 900 +
+        (Math.random()-0.5)*20,
+
+        (Math.random()-0.5)*60
+    );
+}
+
+heartGeometry.setAttribute(
+
+    'position',
+
+    new THREE.Float32BufferAttribute(
+        heartVertices,
+        3
+    )
+);
+
+const heartMaterial =
+new THREE.PointsMaterial({
+
+    color:0xff1493,
+
+    size:4
+
+});
+
+const heart =
+new THREE.Points(
+    heartGeometry,
+    heartMaterial
+);
+
+scene.add(heart);
+
+/* ANIMACION */
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+    galaxy.rotation.y +=
+    0.0008;
+
+    stars.rotation.y +=
+    0.00003;
+
+    ring.rotation.z +=
+    0.002;
+
+    heart.rotation.y +=
+    0.002;
+
+    floatingSpheres.forEach((sphere,index)=>{
+
+        sphere.rotation.y += 0.01;
+
+        sphere.position.y +=
+        Math.sin(
+            Date.now() * 0.0002 + index
+        ) * 0.08;
+    });
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+animate();
+
+/* RESPONSIVE */
+
+window.addEventListener(
+
+    'resize',
+
+    ()=>{
+
+        camera.aspect =
+        window.innerWidth /
+        window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+    }
+);
+
+</script>
+
+</body>
+</html>
